@@ -1,0 +1,34 @@
+name: Auto-Approve Dependabot
+
+on:
+  workflow_call:
+
+jobs:
+  autoapprove-dependabot:
+    name: Auto-Approve Dependabot
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.repository_owner == 'DWSR'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Fetch metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@dbb049abf0d677abbd7f7eee0375145b417fdd34 # v2.2.0
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Approve
+        run: >
+          gh pr review --approve "${PR_URL}"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Enable automerge
+        run: >
+          gh pr merge --auto --squash "${PR_URL}"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
