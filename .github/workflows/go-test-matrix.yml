@@ -73,7 +73,7 @@ jobs:
       - name: Upload test results
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: TestReports-"${matrix.id}"
+          name: TestReports-"${{ matrix.id }}"
           path: |
             ${{ runner.temp }}/reports/*.json
             ${{ runner.temp }}/reports/*.junit.xml
