@@ -68,8 +68,7 @@ jobs:
             --junitfile '${{ runner.temp }}/reports/run-${{ github.run_number }}-${{ matrix.id }}.junit.xml' \
             --jsonfile '${{ runner.temp }}/reports/run-${{ github.run_number }}-${{ matrix.id }}.json' \
             --format github-actions \
-            --format-icons text \
-            --rerun-fails
+            --format-icons text
       - name: Upload test results
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
@@ -79,6 +78,16 @@ jobs:
             ${{ runner.temp }}/reports/*.junit.xml
           retention-days: 7
         if: always()
+
+  test-passed:
+    name: Tests Passed
+    runs-on: ubuntu-latest
+    if: always()
+    needs: test
+    steps:
+      - name: Fail because of test failure
+        if: needs.test.result != "success"
+        run: exit 1
 
   collect-reports:
     name: Collect Test Reports
