@@ -61,6 +61,15 @@ jobs:
             --yes \
             --imgpkg-lock-output '${{ steps.workdir.outputs.workdir }}/images.yml' >'${{ steps.workdir.outputs.workdir }}/manifests.yaml'
 
-          # Set the output
-          echo "manifests=$(cat '${{ runner.temp }}/manifests.yaml')" >>"${GITHUB_OUTPUT}"
-          echo "images-lock=$(cat '${{ steps.workdir.outputs.workdir }}/images.yml')" >>"${GITHUB_OUTPUT}"
+          # Set the output. Multi-line string pattern from here:
+          # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#multiline-strings
+          {
+            echo "manifests<<MANIFESTYAML'
+            cat '${{ steps.workdir.outputs.workdir }}/manifests.yaml'
+            echo 'MANIFESTYAML'
+          } >>"${GITHUB_OUTPUT}"
+          {
+            echo 'images-lock<<IMAGESLOCKYAML'
+            cat '${{ steps.workdir.outputs.workdir }}/images.yml'
+            echo 'IMAGESLOCKYAML' 
+          } >>"${GITHUB_OUTPUT}"
