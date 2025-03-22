@@ -26,7 +26,7 @@ jobs:
 
   diff-resources:
     if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
-    depends_on: [render-head, render-base]
+    needs: [render-head, render-base]
     name: Generate Kubernetes Resource Diff
     uses: ./.github/workflows/diff-kubernetes-manifests.yml
     with:
