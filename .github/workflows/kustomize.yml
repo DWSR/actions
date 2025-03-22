@@ -11,6 +11,7 @@ on:
       path:
         description: The path to the Kustomization to render
         type: string
+        required: true
     outputs:
       manifests:
         description: The rendered Kubernetes manifests
