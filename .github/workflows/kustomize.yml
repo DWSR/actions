@@ -1,0 +1,58 @@
+name: Kustomize Render
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: The Git ref to render
+        type: string
+        required: false
+        default: ""
+      path:
+        description: The path to the Kustomization to render
+        type: string
+    outputs:
+      manifests:
+        description: The rendered Kubernetes manifests
+        value: "${{ jobs.kustomize.outputs.manifests }}"
+      images-lock:
+
+jobs:
+  kustomize:
+    runs-on: ubuntu-latest
+    outputs:
+      manifests: "${{ steps.render.outputs.manifests }}"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: "${{ inputs.ref }}"
+          path: kustomize-${{ inputs.ref }}
+      - name: Install mise
+        uses: jdx/mise-action@c5d0c300fa141a481a2fce49a31e5bacbe65125e # main
+        with:
+          experimental: true
+      - name: Make workdir
+        id: workdir
+        run: |
+          mkdir -p '${{ runner.temp }}/kustomize-${{ inputs.ref }}'
+          echo "workdir=${{ runner.temp }}/kustomize-${{ inputs.ref }}" >>"${GITHUB_OUTPUT}"
+      - name: Render manifests
+        id: render
+        run: |
+          # Render the manifests and resolve the images
+          kustomize build \
+            --enable-alpha-plugins \
+            --network \
+            --load-restrictor LoadRestrictionsNone \
+            'kustomize-${{ inputs.ref }}/${{ inputs.path }}' |
+          kbld \
+            -f - \
+            --build=false \
+            --sort=false \
+            --yes \
+            --imgpkg-lock-output '${{ steps.workdir.outputs.workdir }}/images.yml' >'${{ steps.workdir.outputs.workdir }}/manifests.yaml'
+
+          # Set the output
+          echo "manifests=$(cat '${{ runner.temp }}/manifests.yaml')" >>"${GITHUB_OUTPUT}"
+          echo "images-lock=$(cat '${{ steps.workdir.outputs.workdir }}/images.yml')" >>"${GITHUB_OUTPUT}"

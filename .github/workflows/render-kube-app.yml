@@ -1,0 +1,37 @@
+name: Render Kube App
+
+on:
+  workflow_call:
+    inputs:
+      path: 
+        type: string
+
+jobs:
+  render-head:
+    runs-on: ubuntu-latest
+    name: Render HEAD
+    uses: ./.github/workflows/kustomize.yml
+    with:
+      ref: "${{ github.head_ref }}"
+      path: "${{ inputs.path }}"
+
+  render-base:
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    name: Render Base
+    uses: ./.github/workflows/kustomize.yml
+    with:
+      ref: "${{ github.head_ref }}"
+      path: "${{ inputs.path }}"
+
+  diff:
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    depends_on: [render-head, render-base]
+    name: Generate diff
+
+  # package:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
