@@ -45,7 +45,9 @@ jobs:
             echo ''
             echo '<details>'
             echo '<summary>Click to expand</summary>'
-            echo "${{ needs.render-head.outputs.manifests }}"
+            echo '```yaml'
+            echo '${{ needs.render-head.outputs.manifests }}'
+            echo '```'
             echo '</details>'
           } >>"${GITHUB_STEP_SUMMARY}"
   

@@ -15,10 +15,10 @@ on:
     outputs:
       manifests:
         description: The rendered Kubernetes manifests
-        value: "${{ jobs.render.outputs.manifests }}"
+        value: "${{ jobs.kustomize.outputs.manifests }}"
       images-lock:
         description: The images lock file
-        value: "${{ jobs.render.outputs.images-lock }}"
+        value: "${{ jobs.kustomize.outputs.images-lock }}"
 
 jobs:
   kustomize:
@@ -26,6 +26,7 @@ jobs:
     name: Render Kustomization - ${{ inputs.path }} at ${{ inputs.ref }}
     outputs:
       manifests: "${{ steps.render.outputs.manifests }}"
+      images-lock: "${{ steps.render.outputs.images-lock }}"
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
