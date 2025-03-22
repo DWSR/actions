@@ -5,6 +5,8 @@ on:
     inputs:
       path: 
         type: string
+        description: The path to the Kustomization to render relative to the root of the repository
+        required: true
 
 jobs:
   render-head:
@@ -24,11 +26,11 @@ jobs:
       ref: "${{ github.head_ref }}"
       path: "${{ inputs.path }}"
 
-  diff:
-    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
-    runs-on: ubuntu-latest
-    depends_on: [render-head, render-base]
-    name: Generate diff
+  # diff:
+  #   if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+  #   runs-on: ubuntu-latest
+  #   depends_on: [render-head, render-base]
+  #   name: Generate diff
 
   # package:
   #   runs-on: ubuntu-latest
