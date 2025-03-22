@@ -14,8 +14,10 @@ on:
     outputs:
       manifests:
         description: The rendered Kubernetes manifests
-        value: "${{ jobs.kustomize.outputs.manifests }}"
+        value: "${{ jobs.render.outputs.manifests }}"
       images-lock:
+        description: The images lock file
+        value: "${{ jobs.render.outputs.images-lock }}"
 
 jobs:
   kustomize:
