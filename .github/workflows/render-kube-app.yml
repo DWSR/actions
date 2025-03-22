@@ -10,7 +10,6 @@ on:
 
 jobs:
   render-head:
-    runs-on: ubuntu-latest
     name: Render HEAD
     uses: ./.github/workflows/kustomize.yml
     with:
@@ -19,7 +18,6 @@ jobs:
 
   render-base:
     if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
-    runs-on: ubuntu-latest
     name: Render Base
     uses: ./.github/workflows/kustomize.yml
     with:
