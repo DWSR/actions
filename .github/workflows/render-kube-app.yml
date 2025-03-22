@@ -32,6 +32,22 @@ jobs:
     with:
       previous: "${{ needs.render-base.outputs.manifests }}"
       next: "${{ needs.render-head.outputs.manifests }}"
+
+  show-resources:
+    needs: [render-head]
+    name: Show Kubernetes Resources
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show resources
+        run: |
+          {
+            echo "# Kubernetes Resources"
+            echo ''
+            echo '<details>'
+            echo '<summary>Click to expand</summary>'
+            echo "${{ needs.render-head.outputs.manifests }}"
+            echo '</details>'
+          } >>"${GITHUB_STEP_SUMMARY}"
   
   # diff-images-lock:
   #   if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
