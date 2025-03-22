@@ -21,7 +21,7 @@ jobs:
     name: Render Base
     uses: ./.github/workflows/kustomize.yml
     with:
-      ref: "${{ github.head_ref }}"
+      ref: "${{ github.base_ref }}"
       path: "${{ inputs.path }}"
 
   # diff:

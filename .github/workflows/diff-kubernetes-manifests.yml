@@ -1,0 +1,59 @@
+name: Diff Kubernetes Manifests
+
+on:
+  workflow_call:
+    inputs:
+      previous:
+        type: string
+        description: A YAML stream of Kubernetes resources that represent the current or previous state.
+        required: true
+      next:
+        type: string
+        description: A YAML stream of Kubernetes resources that represent the desired or next state.
+        required: true
+
+jobs:
+  diff-kube-resources:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dyff
+        uses: jdx/mise-action@c5d0c300fa141a481a2fce49a31e5bacbe65125e # main
+        with:
+          mise_toml: |
+            [tools]
+              dyff = "1.10.1"
+          experimental: true
+        env:
+          GITHUB_TOKEN: "${{ github.token }}"
+      - name: Diff Kubernetes resources
+        run: |
+          echo "${{ inputs.previous }}" >previous.yaml
+          echo "${{ inputs.next }}" >next.yaml
+          if ! dyff between \
+            --omit-header \
+            --set-exit-code \
+            --detect-kubernetes \
+            previous.yaml next.yaml >diff.yaml; then
+            if [ "${?}" = "255" ]; then
+              echo "Error checking diff".
+              exit 255
+            fi
+
+            echo "Differences found. Check step summary for details."
+            {
+              echo '# Differences in Kubernetes resources'
+              echo ''
+              echo '```text'
+              cat diff.yaml 
+              echo '```'
+            } >>"${GITHUB_STEP_SUMMARY}"
+
+            exit 0
+          fi
+
+          echo 'No differences found.'
+          {
+            echo '# Differences in Kubernetes resources'
+            echo ''
+            echo 'No differences found.'
+          } >>"${GITHUB_STEP_SUMMARY}"
