@@ -14,6 +14,7 @@ on:
 
 jobs:
   diff-kube-resources:
+    name: Diff resources
     runs-on: ubuntu-latest
     steps:
       - name: Install dyff
@@ -48,7 +49,7 @@ jobs:
               echo '```'
             } >>"${GITHUB_STEP_SUMMARY}"
 
-            exit 0
+            exit 1
           fi
 
           echo 'No differences found.'
