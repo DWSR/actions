@@ -64,7 +64,7 @@ jobs:
           # Set the output. Multi-line string pattern from here:
           # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#multiline-strings
           {
-            echo "manifests<<MANIFESTYAML'
+            echo 'manifests<<MANIFESTYAML'
             cat '${{ steps.workdir.outputs.workdir }}/manifests.yaml'
             echo 'MANIFESTYAML'
           } >>"${GITHUB_OUTPUT}"
