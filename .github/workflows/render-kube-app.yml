@@ -44,10 +44,13 @@ jobs:
             echo "# Kubernetes Resources"
             echo ''
             echo '<details>'
+            echo ''
             echo '<summary>Click to expand</summary>'
+            echo ''
             echo '```yaml'
             echo '${{ needs.render-head.outputs.manifests }}'
             echo '```'
+            echo ''
             echo '</details>'
           } | tee -a "${GITHUB_STEP_SUMMARY}"
   
