@@ -46,10 +46,10 @@ jobs:
             echo '<details>'
             echo '<summary>Click to expand</summary>'
             echo '```yaml'
-            echo -n '${{ needs.render-head.outputs.manifests }}'
+            echo '${{ needs.render-head.outputs.manifests }}'
             echo '```'
             echo '</details>'
-          } >>"${GITHUB_STEP_SUMMARY}"
+          } | tee -a "${GITHUB_STEP_SUMMARY}"
   
   # diff-images-lock:
   #   if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
