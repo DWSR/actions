@@ -1,4 +1,4 @@
-name: Render Kube App
+name: Generate imgpkg bundle
 
 on:
   workflow_call:
