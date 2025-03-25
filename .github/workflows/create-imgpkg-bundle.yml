@@ -33,7 +33,6 @@ jobs:
           echo '${{ inputs.images-lock }}' >bundle/.imgpkg/images.yml
 
           repo_name="$(echo '${{ github.repository }}' | cut -f 2 -d '/')"
-          commit_sha="${GITHUB_SHA::8}"
 
           cat <<EOF >bundle/.imgpkg/bundle.yml
           apiVersion: imgpkg.carvel.dev/v1alpha1
@@ -44,7 +43,7 @@ jobs:
       - name: Create bundle
         run: |
           imgpkg push \
-            --bundle "${{ github.repository }}:${{ github.ref }}" \
+            --bundle "${{ github.repository }}:${GITHUB_SHA::8}" \
             --file bundle \
             --lock-output bundle.lock.yaml
 
