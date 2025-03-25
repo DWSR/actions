@@ -56,7 +56,7 @@ jobs:
   
   diff-images-lock:
     if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
-    depends_on: [render-head, render-base]
+    needs: [render-head, render-base]
     name: Generate Images Lock Diff
     uses: ./.github/workflows/diff-images-lock.yml
     with:
