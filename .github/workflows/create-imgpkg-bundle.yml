@@ -23,6 +23,8 @@ jobs:
           mise_toml: |
             [tools]
               imgpkg = "0.45.0"
+              cosign = "2.4.3"
+              yq = "4.45.1"
           experimental: true
         env:
           GITHUB_TOKEN: "${{ github.token }}"
@@ -42,6 +44,7 @@ jobs:
             name: "${repo_name}"
           EOF
       - name: Create bundle
+        id: create-bundle
         run: |
           imgpkg push \
             --bundle "ghcr.io/${GITHUB_REPOSITORY@L}/manifests:${GITHUB_SHA::8}" \
@@ -61,6 +64,16 @@ jobs:
             echo ''
             echo '</details>'
           } >>"${GITHUB_STEP_SUMMARY}"
+
+          echo "bundle-with-digest=$(yq eval '.bundle.image' bundle.lock.yaml)" >>"${GITHUB_OUTPUT}"
+
         env:
           GITHUB_TOKEN: "${{ github.token }}"
           IMGPKG_ACTIVE_KEYCHAINS: github
+      - name: Sign bundle
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: |
+          cosign sign \
+            --annotations 'author="${{ github.actor }}"' \
+            '${{ steps.create-bundle.outputs.bundle-with-digest }}'
