@@ -54,14 +54,35 @@ jobs:
             echo '</details>'
           } | tee -a "${GITHUB_STEP_SUMMARY}"
   
-  # diff-images-lock:
-  #   if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
-  #   depends_on: [render-head, render-base]
-  #   name: Generate Images Lock Diff
-  #   uses: ./.github/workflows/diff-images-lock.yml
-  #   with:
-  #     previous: "${{ needs.render-base.outputs.images-lock }}"
-  #     next: "${{ needs.render-head.outputs.images-lock }}"
+  diff-images-lock:
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+    depends_on: [render-head, render-base]
+    name: Generate Images Lock Diff
+    uses: ./.github/workflows/diff-images-lock.yml
+    with:
+      previous: "${{ needs.render-base.outputs.images-lock }}"
+      next: "${{ needs.render-head.outputs.images-lock }}"
+
+  show-images-lock:
+    needs: [render-head]
+    name: Show Images lockfile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show lockfile
+        run: |
+          {
+            echo "# Images"
+            echo ''
+            echo '<details>'
+            echo ''
+            echo '<summary>Click to expand</summary>'
+            echo ''
+            echo '```yaml'
+            echo '${{ needs.render-head.outputs.images-lock }}'
+            echo '```'
+            echo ''
+            echo '</details>'
+          } | tee -a "${GITHUB_STEP_SUMMARY}"
 
   # package:
   #   runs-on: ubuntu-latest
