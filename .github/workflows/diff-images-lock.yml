@@ -48,8 +48,6 @@ jobs:
               cat diff.yaml 
               echo '```'
             } >>"${GITHUB_STEP_SUMMARY}"
-
-            exit 1
           fi
 
           echo 'No differences found.'

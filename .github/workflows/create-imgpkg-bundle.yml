@@ -1,0 +1,65 @@
+name: Render Kube App
+
+on:
+  workflow_call:
+    inputs:
+      manifests:
+        type: string
+        description: A YAML stream of Kubernetes resources
+        required: true
+      images-lock:
+        type: string
+        description: A YAML document of images used in the set of Kubernetes resources
+        required: true
+
+jobs:
+  create-bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install mise
+        uses: jdx/mise-action@c5d0c300fa141a481a2fce49a31e5bacbe65125e # main
+        with:
+          mise_toml: |
+            [tools]
+              imgpkg = "0.45.0"
+          experimental: true
+        env:
+          GITHUB_TOKEN: "${{ github.token }}"
+      - name: Write files to disk
+        run: |
+          mkdir -p bundle/.imgpkg
+
+          echo '${{ inputs.manifests }}' >bundle/manifests.yaml
+          echo '${{ inputs.images-lock }}' >bundle/.imgpkg/images.yml
+
+          repo_name="$(echo '${{ github.repository }}' | cut -f 2 -d '/')"
+
+          cat <<EOF >bundle/.imgpkg/bundle.yml
+          apiVersion: imgpkg.carvel.dev/v1alpha1
+          kind: Bundle
+          metadata:
+            name: "${repo_name}"
+          EOF
+      - name: Create bundle
+        run: |
+          imgpkg push \
+            --bundle "${{ github.repository }}:${{ github.ref }}" \
+            --file bundle \
+            --lock-output bundle.lock.yaml
+
+          {
+            echo "# Bundle"
+            echo ''
+            echo '<details>'
+            echo ''
+            echo '<summary>Click to expand</summary>'
+            echo ''
+            echo '```yaml'
+            cat bundle.lock.yaml
+            echo '```'
+            echo ''
+            echo '</details>'
+          } >>"${GITHUB_STEP_SUMMARY}"
+        env:
+          GITHUB_TOKEN: "${{ github.token }}"
+          IMGPKG_ACTIVE_KEYCHAINS: github
