@@ -44,7 +44,7 @@ jobs:
       - name: Create bundle
         run: |
           imgpkg push \
-          --bundle "ghcr.io/${GITHUB_REPOSITORY@L}:${GITHUB_SHA::8}" \
+          --bundle "ghcr.io/${GITHUB_REPOSITORY@L}/manifests:${GITHUB_SHA::8}" \
             --file bundle \
             --lock-output bundle.lock.yaml
 
