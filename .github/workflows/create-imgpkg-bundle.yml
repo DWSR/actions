@@ -14,6 +14,7 @@ on:
 
 jobs:
   create-bundle:
+    name: Create imgpkg bundle
     runs-on: ubuntu-latest
     steps:
       - name: Install mise
@@ -43,7 +44,7 @@ jobs:
       - name: Create bundle
         run: |
           imgpkg push \
-            --bundle "${{ github.repository }}:${GITHUB_SHA::8}" \
+          --bundle "ghcr.io/${GITHUB_REPOSITORY@L}:${GITHUB_SHA::8}" \
             --file bundle \
             --lock-output bundle.lock.yaml
 
