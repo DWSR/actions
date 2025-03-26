@@ -85,7 +85,7 @@ jobs:
             --annotations 'workflow=${{ github.workflow }}' \
             --annotations 'repository=${{ github.repository }}' \
             --registry-username '${{ github.actor }}' \
-            --registry-token '${{ secrets.GITHUB_TOKEN }}' \
+            --registry-password '${{ secrets.GITHUB_TOKEN }}' \
             --oidc-provider github-actions \
             --yes \
             '${{ steps.create-bundle.outputs.bundle-with-digest }}'
