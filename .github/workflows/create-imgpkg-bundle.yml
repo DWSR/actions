@@ -12,6 +12,10 @@ on:
         description: A YAML document of images used in the set of Kubernetes resources
         required: true
 
+permissions:
+  id-token: write
+  packages: write
+
 jobs:
   create-bundle:
     name: Create imgpkg bundle
@@ -75,5 +79,7 @@ jobs:
           COSIGN_EXPERIMENTAL: "true"
         run: |
           cosign sign \
+            --oidc-provider github \
+            --yes \
             --annotations 'author=${{ github.actor }}' \
             '${{ steps.create-bundle.outputs.bundle-with-digest }}'
