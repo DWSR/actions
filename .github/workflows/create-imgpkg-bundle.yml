@@ -79,7 +79,8 @@ jobs:
           COSIGN_EXPERIMENTAL: "true"
         run: |
           cosign sign \
+            --annotations 'author=${{ github.actor }}' \
+            --registry-token '${{ secrets.GITHUB_TOKEN }}' \
             --oidc-provider github-actions \
             --yes \
-            --annotations 'author=${{ github.actor }}' \
             '${{ steps.create-bundle.outputs.bundle-with-digest }}'
