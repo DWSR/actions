@@ -75,5 +75,5 @@ jobs:
           COSIGN_EXPERIMENTAL: "true"
         run: |
           cosign sign \
-            --annotations 'author="${{ github.actor }}"' \
+            --annotations 'author=${{ github.actor }}' \
             '${{ steps.create-bundle.outputs.bundle-with-digest }}'
