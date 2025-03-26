@@ -77,10 +77,13 @@ jobs:
       - name: Sign bundle
         env:
           COSIGN_EXPERIMENTAL: "true"
+          GITHUB_TOKEN: "${{ github.token }}"
         run: |
           cosign sign \
             --annotations 'author=${{ github.actor }}' \
-            --registry-token '${{ secrets.GITHUB_TOKEN }}' \
+            --annotations 'ref=${{ github.sha }}' \
+            --annotations 'workflow=${{ github.workflow }}' \
+            --annotations 'repository=${{ github.repository }}' \
             --oidc-provider github-actions \
             --yes \
             '${{ steps.create-bundle.outputs.bundle-with-digest }}'
