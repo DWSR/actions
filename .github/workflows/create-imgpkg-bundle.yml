@@ -11,6 +11,11 @@ on:
         type: string
         description: A YAML document of images used in the set of Kubernetes resources
         required: true
+    outputs:
+      bundle-with-digest:
+        type: string
+        description: The manifest bundle reference with digest.
+        value: "${{ jobs.create-bundle.outputs.bundle-with-digest }}"
 
 permissions:
   id-token: write
@@ -20,6 +25,8 @@ jobs:
   create-bundle:
     name: Create imgpkg bundle
     runs-on: ubuntu-latest
+    outputs:
+      bundle-with-digest: ${{ steps.create-bundle.outputs.bundle-with-digest }}
     steps:
       - name: Install mise
         uses: jdx/mise-action@c5d0c300fa141a481a2fce49a31e5bacbe65125e # main
