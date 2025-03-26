@@ -1,0 +1,58 @@
+name: Diff Image Lockfile
+
+on:
+  workflow_call:
+    inputs:
+      previous:
+        type: string
+        description: A YAML document of images used in the previous set of Kubernetes resources.
+        required: true
+      next:
+        type: string
+        description: A YAML stream of images used in the upcoming set of Kubernetes resources.
+        required: true
+
+jobs:
+  diff-images-lock:
+    name: Diff images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dyff
+        uses: jdx/mise-action@c5d0c300fa141a481a2fce49a31e5bacbe65125e # main
+        with:
+          mise_toml: |
+            [tools]
+              dyff = "1.10.1"
+          experimental: true
+        env:
+          GITHUB_TOKEN: "${{ github.token }}"
+      - name: Diff image lockfile
+        run: |
+          echo "${{ inputs.previous }}" >previous.yaml
+          echo "${{ inputs.next }}" >next.yaml
+          if ! dyff between \
+            --omit-header \
+            --set-exit-code \
+            --detect-kubernetes=false \
+            previous.yaml next.yaml >diff.yaml; then
+            if [ "${?}" = "255" ]; then
+              echo "Error checking diff".
+              exit 255
+            fi
+
+            echo "Differences found. Check step summary for details."
+            {
+              echo '# Differences in Images'
+              echo ''
+              echo '```text'
+              cat diff.yaml 
+              echo '```'
+            } >>"${GITHUB_STEP_SUMMARY}"
+          fi
+
+          echo 'No differences found.'
+          {
+            echo '# Differences in Images'
+            echo ''
+            echo 'No differences found.'
+          } >>"${GITHUB_STEP_SUMMARY}"

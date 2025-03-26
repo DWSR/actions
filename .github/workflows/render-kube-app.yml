@@ -1,0 +1,99 @@
+name: Render Kube App
+
+on:
+  workflow_call:
+    inputs:
+      path: 
+        type: string
+        description: The path to the Kustomization to render relative to the root of the repository
+        required: true
+      create-bundle:
+        type: boolean
+        description: Whether to create an imgpkg bundle
+        required: false
+        default: false
+
+jobs:
+  render-head:
+    name: Render HEAD
+    uses: ./.github/workflows/kustomize.yml
+    with:
+      ref: "${{ github.head_ref }}"
+      path: "${{ inputs.path }}"
+
+  render-base:
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+    name: Render Base
+    uses: ./.github/workflows/kustomize.yml
+    with:
+      ref: "${{ github.base_ref }}"
+      path: "${{ inputs.path }}"
+
+  diff-resources:
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+    needs: [render-head, render-base]
+    name: Generate Kubernetes Resource Diff
+    uses: ./.github/workflows/diff-kubernetes-manifests.yml
+    with:
+      previous: "${{ needs.render-base.outputs.manifests }}"
+      next: "${{ needs.render-head.outputs.manifests }}"
+
+  show-resources:
+    needs: [render-head]
+    name: Show Kubernetes Resources
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show resources
+        run: |
+          {
+            echo "# Kubernetes Resources"
+            echo ''
+            echo '<details>'
+            echo ''
+            echo '<summary>Click to expand</summary>'
+            echo ''
+            echo '```yaml'
+            echo '${{ needs.render-head.outputs.manifests }}'
+            echo '```'
+            echo ''
+            echo '</details>'
+          } | tee -a "${GITHUB_STEP_SUMMARY}"
+  
+  diff-images-lock:
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+    needs: [render-head, render-base]
+    name: Generate Images Lock Diff
+    uses: ./.github/workflows/diff-images-lock.yml
+    with:
+      previous: "${{ needs.render-base.outputs.images-lock }}"
+      next: "${{ needs.render-head.outputs.images-lock }}"
+
+  show-images-lock:
+    needs: [render-head]
+    name: Show Images lockfile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show lockfile
+        run: |
+          {
+            echo "# Images"
+            echo ''
+            echo '<details>'
+            echo ''
+            echo '<summary>Click to expand</summary>'
+            echo ''
+            echo '```yaml'
+            echo '${{ needs.render-head.outputs.images-lock }}'
+            echo '```'
+            echo ''
+            echo '</details>'
+          } | tee -a "${GITHUB_STEP_SUMMARY}"
+
+  package:
+    if: inputs.create-bundle
+    needs: [render-head]
+    name: Generate Imgpkg Bundle
+    uses: ./.github/workflows/create-imgpkg-bundle.yml
+    with:
+      manifests: "${{ needs.render-head.outputs.manifests }}"
+      images-lock: "${{ needs.render-head.outputs.images-lock }}"

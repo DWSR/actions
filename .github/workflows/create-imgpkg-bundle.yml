@@ -1,0 +1,90 @@
+name: Generate imgpkg bundle
+
+on:
+  workflow_call:
+    inputs:
+      manifests:
+        type: string
+        description: A YAML stream of Kubernetes resources
+        required: true
+      images-lock:
+        type: string
+        description: A YAML document of images used in the set of Kubernetes resources
+        required: true
+
+permissions:
+  id-token: write
+  packages: write
+
+jobs:
+  create-bundle:
+    name: Create imgpkg bundle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install mise
+        uses: jdx/mise-action@c5d0c300fa141a481a2fce49a31e5bacbe65125e # main
+        with:
+          mise_toml: |
+            [tools]
+              imgpkg = "0.45.0"
+              cosign = "2.4.3"
+              yq = "4.45.1"
+          experimental: true
+        env:
+          GITHUB_TOKEN: "${{ github.token }}"
+      - name: Write files to disk
+        run: |
+          mkdir -p bundle/.imgpkg
+
+          echo '${{ inputs.manifests }}' >bundle/manifests.yaml
+          echo '${{ inputs.images-lock }}' >bundle/.imgpkg/images.yml
+
+          repo_name="$(echo '${{ github.repository }}' | cut -f 2 -d '/')"
+
+          cat <<EOF >bundle/.imgpkg/bundle.yml
+          apiVersion: imgpkg.carvel.dev/v1alpha1
+          kind: Bundle
+          metadata:
+            name: "${repo_name}"
+          EOF
+      - name: Create bundle
+        id: create-bundle
+        run: |
+          imgpkg push \
+            --bundle "ghcr.io/${GITHUB_REPOSITORY@L}/manifests:${GITHUB_SHA::8}" \
+            --file bundle \
+            --lock-output bundle.lock.yaml
+
+          {
+            echo "# Bundle"
+            echo ''
+            echo '<details>'
+            echo ''
+            echo '<summary>Click to expand</summary>'
+            echo ''
+            echo '```yaml'
+            cat bundle.lock.yaml
+            echo '```'
+            echo ''
+            echo '</details>'
+          } >>"${GITHUB_STEP_SUMMARY}"
+
+          echo "bundle-with-digest=$(yq eval '.bundle.image' bundle.lock.yaml)" >>"${GITHUB_OUTPUT}"
+        env:
+          GITHUB_TOKEN: "${{ github.token }}"
+          IMGPKG_ACTIVE_KEYCHAINS: github
+      - name: Sign bundle
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+          GITHUB_TOKEN: "${{ github.token }}"
+        run: |
+          cosign sign \
+            --annotations 'author=${{ github.actor }}' \
+            --annotations 'ref=${{ github.sha }}' \
+            --annotations 'workflow=${{ github.workflow }}' \
+            --annotations 'repository=${{ github.repository }}' \
+            --registry-username '${{ github.actor }}' \
+            --registry-password '${{ secrets.GITHUB_TOKEN }}' \
+            --oidc-provider github-actions \
+            --yes \
+            '${{ steps.create-bundle.outputs.bundle-with-digest }}'
