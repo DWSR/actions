@@ -13,7 +13,6 @@ on:
         required: true
     outputs:
       bundle-with-digest:
-        type: string
         description: The manifest bundle reference with digest.
         value: "${{ jobs.create-bundle.outputs.bundle-with-digest }}"
 
