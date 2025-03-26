@@ -70,7 +70,6 @@ jobs:
           } >>"${GITHUB_STEP_SUMMARY}"
 
           echo "bundle-with-digest=$(yq eval '.bundle.image' bundle.lock.yaml)" >>"${GITHUB_OUTPUT}"
-
         env:
           GITHUB_TOKEN: "${{ github.token }}"
           IMGPKG_ACTIVE_KEYCHAINS: github
