@@ -46,19 +46,21 @@ jobs:
       - name: Show resources
         # Do things with a multi-line bash string to avoid issues with single and double quotes.
         run: |
-          cat <<EOF >"${GITHUB_STEP_SUMMARY}"
-          # Kubernetes Resources
-
-          <details>
-
-          <summary>Click to expand</summary>
-
-          ```yaml
-          ${{ needs.render-head.outputs.manifests }}
-          ```
-
-          </details>
-          EOF
+          {
+            echo '# Kubernetes Resources'
+            echo ''
+            echo '<details>'
+            echo ''
+            echo '<summary>Click to expand</summary>'
+            echo ''
+            echo '```yaml'
+            cat <<EOF
+            ${{ needs.render-head.outputs.manifests }}
+            EOF
+            echo '```'
+            echo ''
+            echo '</details>'
+          } >"${GITHUB_STEP_SUMMARY}"
   
   diff-images-lock:
     if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
