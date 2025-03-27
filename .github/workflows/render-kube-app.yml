@@ -54,9 +54,7 @@ jobs:
             echo '<summary>Click to expand</summary>'
             echo ''
             echo '```yaml'
-            cat <<__EOF__
-            ${{ needs.render-head.outputs.manifests }}
-            __EOF__
+            IFS= echo ${{ needs.render-head.outputs.manifests }}
             echo '```'
             echo ''
             echo '</details>'
@@ -78,19 +76,19 @@ jobs:
     steps:
       - name: Show lockfile
         run: |
-          cat <<EOF >"${GITHUB_STEP_SUMMARY}"
-          # Images
-
-          <details>
-
-          <summary>Click to expand</summary>
-
-          ```yaml
-          ${{ needs.render-head.outputs.images-lock }}
-          ```
-
-          </details>
-          EOF
+          {
+            echo '# Images'
+            echo ''
+            echo '<details>'
+            echo ''
+            echo '<summary>Click to expand</summary>'
+            echo ''
+            echo '```yaml'
+            IFS= echo ${{ needs.render-head.outputs.images-lock }}
+            echo '```'
+            echo ''
+            echo '</details>'
+          } >"${GITHUB_STEP_SUMMARY}"
 
   package:
     if: inputs.create-bundle
