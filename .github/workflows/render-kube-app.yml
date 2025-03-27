@@ -44,8 +44,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Show resources
+        # Do things with a multi-line bash string to avoid issues with single and double quotes.
         run: |
-          cat <<EOF | tee -a "${GITHUB_STEP_SUMMARY}"
+          cat <<EOF >>"${GITHUB_STEP_SUMMARY}"
           # Kubernetes Resources
 
           <details>
@@ -75,19 +76,19 @@ jobs:
     steps:
       - name: Show lockfile
         run: |
-          {
-            echo "# Images"
-            echo ''
-            echo '<details>'
-            echo ''
-            echo '<summary>Click to expand</summary>'
-            echo ''
-            echo '```yaml'
-            echo '${{ needs.render-head.outputs.images-lock }}'
-            echo '```'
-            echo ''
-            echo '</details>'
-          } | tee -a "${GITHUB_STEP_SUMMARY}"
+          cat <<EOF >>"${GITHUB_STEP_SUMMARY}"
+          # Images
+
+          <details>
+
+          <summary>Click to expand</summary>
+
+          ```yaml
+          ${{ needs.render-head.outputs.images-lock }}
+          ```
+
+          </details>
+          EOF
 
   package:
     if: inputs.create-bundle
