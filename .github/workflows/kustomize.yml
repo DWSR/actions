@@ -68,12 +68,13 @@ jobs:
           # Set the output. Multi-line string pattern from here:
           # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#multiline-strings
           {
-            echo 'manifests<<MANIFESTYAML'
+            echo 'manifests<<EOF'
             cat '${{ steps.workdir.outputs.workdir }}/manifests.yaml'
-            echo 'MANIFESTYAML'
-          } >>"${GITHUB_OUTPUT}"
+            echo 'EOF'
+          } | tee -a "${GITHUB_OUTPUT}"
+
           {
-            echo 'images-lock<<IMAGESLOCKYAML'
+            echo 'images-lock<<EOF'
             cat '${{ steps.workdir.outputs.workdir }}/images.yml'
-            echo 'IMAGESLOCKYAML' 
-          } >>"${GITHUB_OUTPUT}"
+            echo 'EOF' 
+          } | tee -a "${GITHUB_OUTPUT}"
