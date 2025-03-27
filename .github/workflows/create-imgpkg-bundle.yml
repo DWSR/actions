@@ -45,6 +45,7 @@ jobs:
           cat <<EOF >bundle/manifests.yaml
           ${{ inputs.manifests }}
           EOF
+
           cat <<EOF >bundle/.imgpkg/images.yml
           ${{ inputs.images-lock }}
           EOF 
@@ -57,6 +58,7 @@ jobs:
           metadata:
             name: "${repo_name}"
           EOF
+
       - name: Create bundle
         id: create-bundle
         run: |
