@@ -42,22 +42,22 @@ jobs:
         run: |
           mkdir -p bundle/.imgpkg
 
-          cat <<EOF >bundle/manifests.yaml
+          cat <<MANIFESTS >bundle/manifests.yaml
           ${{ inputs.manifests }}
-          EOF
+          MANIFESTS
 
-          cat <<EOF >bundle/.imgpkg/images.yml
+          cat <<IMAGESLOCK >bundle/.imgpkg/images.yml
           ${{ inputs.images-lock }}
-          EOF 
+          IMAGESLOCK
 
           repo_name="$(echo '${{ github.repository }}' | cut -f 2 -d '/')"
 
-          cat <<EOF >bundle/.imgpkg/bundle.yml
+          cat <<BUNDLE >bundle/.imgpkg/bundle.yml
           apiVersion: imgpkg.carvel.dev/v1alpha1
           kind: Bundle
           metadata:
             name: "${repo_name}"
-          EOF
+          BUNDLE
 
       - name: Create bundle
         id: create-bundle
