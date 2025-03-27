@@ -1,0 +1,20 @@
+name: Check Authorized Actors
+
+on:
+  workflow_call:
+
+jobs:
+  check-actors:
+    runs-on: ubuntu-latest
+    name: Check Github Actors
+    steps:
+      - uses: morfien101/actions-authorized-user@4a3cfbf0bcb3cafe4a71710a278920c5d94bb38b # v3
+        with:
+          username: ${{ github.actor }}
+          whitelist: DWSR, renovate[bot], dependabot[bot]
+          github_token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: User is unauthorized
+        if: "${{ ! steps.auth_check.outputs.authorized }}"
+        run: |
+          echo '::error title=User Unauthorized::User ${{ github.actor }} is not authorized to run this workflow!'
+          exit 1
