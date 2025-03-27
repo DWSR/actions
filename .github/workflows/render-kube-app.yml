@@ -53,7 +53,11 @@ jobs:
             echo '<summary>Click to expand</summary>'
             echo ''
             echo '```yaml'
-            echo '${{ needs.render-head.outputs.manifests }}'
+
+            cat <<EOF
+            ${{ needs.render-head.outputs.manifests }}
+            EOF
+
             echo '```'
             echo ''
             echo '</details>'

@@ -28,8 +28,14 @@ jobs:
           GITHUB_TOKEN: "${{ github.token }}"
       - name: Diff Kubernetes resources
         run: |
-          echo "${{ inputs.previous }}" >previous.yaml
-          echo "${{ inputs.next }}" >next.yaml
+          cat <<EOF >previous.yaml
+          ${{ inputs.previous }} 
+          EOF
+
+          cat <<EOF >next.yaml
+          ${{ inputs.next }}
+          EOF
+
           if ! dyff between \
             --omit-header \
             --set-exit-code \
