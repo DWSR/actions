@@ -45,7 +45,7 @@ jobs:
     steps:
       - name: Show resources
         run: |
-          cat <<EOF manifests.yaml
+          cat <<EOF >manifests.yaml
           ${{ needs.render-head.outputs.manifests }}
           EOF
 
@@ -79,7 +79,7 @@ jobs:
     steps:
       - name: Show lockfile
         run: |
-          cat <<EOF images.lock.yml
+          cat <<EOF >images.lock.yml
           ${{ needs.render-head.outputs.images-lock }}
           EOF
 
