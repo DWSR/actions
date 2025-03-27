@@ -46,7 +46,7 @@ jobs:
       - name: Show resources
         # Do things with a multi-line bash string to avoid issues with single and double quotes.
         run: |
-          cat <<EOF >>"${GITHUB_STEP_SUMMARY}"
+          cat <<EOF >"${GITHUB_STEP_SUMMARY}"
           # Kubernetes Resources
 
           <details>
@@ -76,7 +76,7 @@ jobs:
     steps:
       - name: Show lockfile
         run: |
-          cat <<EOF >>"${GITHUB_STEP_SUMMARY}"
+          cat <<EOF >"${GITHUB_STEP_SUMMARY}"
           # Images
 
           <details>
