@@ -42,8 +42,12 @@ jobs:
         run: |
           mkdir -p bundle/.imgpkg
 
-          echo '${{ inputs.manifests }}' >bundle/manifests.yaml
-          echo '${{ inputs.images-lock }}' >bundle/.imgpkg/images.yml
+          cat <<EOF >bundle/manifests.yaml
+          ${{ inputs.manifests }}
+          EOF
+          cat <<EOF >bundle/.imgpkg/images.yml
+          ${{ inputs.images-lock }}
+          EOF 
 
           repo_name="$(echo '${{ github.repository }}' | cut -f 2 -d '/')"
 
