@@ -45,23 +45,19 @@ jobs:
     steps:
       - name: Show resources
         run: |
-          {
-            echo "# Kubernetes Resources"
-            echo ''
-            echo '<details>'
-            echo ''
-            echo '<summary>Click to expand</summary>'
-            echo ''
-            echo '```yaml'
+          cat <<EOF | tee -a "${GITHUB_STEP_SUMMARY}"
+          # Kubernetes Resources
 
-            cat <<EOF
-            ${{ needs.render-head.outputs.manifests }}
-            EOF
+          <details>
 
-            echo '```'
-            echo ''
-            echo '</details>'
-          } | tee -a "${GITHUB_STEP_SUMMARY}"
+          <summary>Click to expand</summary>
+
+          ```yaml
+          ${{ needs.render-head.outputs.manifests }}
+          ```
+
+          </details>
+          EOF
   
   diff-images-lock:
     if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
