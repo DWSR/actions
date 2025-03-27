@@ -45,6 +45,7 @@ jobs:
     steps:
       - name: Show resources
         run: |
+          # Do it this way because of quoting. Doing e.g. echo '' will cause single quotes to be eaten.
           cat <<EOF >manifests.yaml
           ${{ needs.render-head.outputs.manifests }}
           EOF
