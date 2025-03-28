@@ -12,6 +12,10 @@ on:
         description: Whether to create an imgpkg bundle
         required: false
         default: false
+    outputs:
+      bundle-with-digest:
+        description: "The manifest bundle reference with digest."
+        value: "${{ jobs.package.outputs.bundle-with-digest }}"
 
 jobs:
   render-head:
