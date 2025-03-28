@@ -1,0 +1,28 @@
+name: Auto-Approve Infra Bot
+
+on:
+  workflow_call:
+
+jobs:
+  autoapprove-infra-bot:
+    name: Auto-Approve Infra Bot
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login == 'dwsr-infra-bot[bot]' &&
+      github.repository_owner == 'DWSR'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Approve
+        run: >
+          gh pr review --approve "${PR_URL}"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Enable automerge
+        run: >
+          gh pr merge --auto --squash "${PR_URL}"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
