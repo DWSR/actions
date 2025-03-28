@@ -57,13 +57,15 @@ jobs:
             --enable-alpha-plugins \
             --network \
             --load-restrictor LoadRestrictionsNone \
-            'kustomize-${{ inputs.ref }}/${{ inputs.path }}' |
+            'kustomize-${{ inputs.ref }}/${{ inputs.path }}' >'${{ steps.workdir.outputs.workdir }}/manifests.yaml'
+          # Don't use kbld's output because we're going to use imgpkg to create the bundle later and it only works if the
+          # manifests have the original image references.
           kbld \
-            -f - \
+            -f '${{ steps.workdir.outputs.workdir }}/manifests.yaml' \
             --build=false \
             --sort=false \
             --yes \
-            --imgpkg-lock-output '${{ steps.workdir.outputs.workdir }}/images.yml' >'${{ steps.workdir.outputs.workdir }}/manifests.yaml'
+            --imgpkg-lock-output '${{ steps.workdir.outputs.workdir }}/images.yml' >/dev/null
 
           # Set the output. Multi-line string pattern from here:
           # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#multiline-strings
